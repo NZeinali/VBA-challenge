@@ -1,1 +1,168 @@
 
+Sub wallstreet()
+
+        
+    
+    For Each ws In Worksheets
+    
+        
+    Dim i As Long, j As Long, count As Double
+    Dim TotRows As Long, TotColumns As Long
+    Dim open_value As Double, close_value As Double
+    Dim total_vol As Double
+    Dim yearly_change As Double, Percent_change As Double
+    Dim max_percent As Double, min_percent As Double
+    Dim max_tot_vol As Double
+    Dim max_percent_ticker As String
+    Dim min_percent_ticker As String, max_tot_vol_ticker As String
+        
+        
+        
+'Table's top row titles
+            
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+        
+'Counting number of Rows & Columns
+        
+        TotRows = ws.Cells(Rows.count, 1).End(xlUp).Row
+        TotColumns = ws.Cells(1, Columns.count).End(xlToLeft).Column
+             
+'Setting initial parameters
+        
+        open_value = ws.Range("C2").Value
+        close_value = ws.Range("F2").Value
+        total_vol = 0
+        yearly_change = close_value - open_value
+        Percent_change = yearly_change / open_value
+        count = 2
+        
+        
+'Loop to output the results
+
+        For i = 2 To TotRows - 1
+            
+            If (ws.Range("A" & i).Value = ws.Range("A" & i + 1).Value) Then
+                
+                close_value = ws.Range("F" & i + 1).Value
+                total_vol = total_vol + ws.Range("G" & i).Value
+                
+            Else
+                
+                yearly_change = close_value - open_value
+                
+                If open_value = 0 Then
+                    
+                    Percent_change = 0
+                    
+                Else
+                    
+                    Percent_change = yearly_change / open_value
+                
+                End If
+                
+                total_vol = total_vol + ws.Range("G" & i).Value
+                ws.Range("I" & count).Value = ws.Range("A" & i).Value
+                ws.Range("J" & count).Value = yearly_change
+                ws.Range("K" & count).Value = Percent_change
+                ws.Range("L" & count).Value = total_vol
+                open_value = ws.Range("C" & i + 1).Value
+                close_value = ws.Range("F" & i + 1).Value
+                count = count + 1
+                total_vol = 0
+                
+            End If
+        
+        
+        Next i
+        
+       
+'Reporting the results
+        
+        yearly_change = close_value - open_value
+        Percent_change = yearly_change / open_value
+        total_vol = total_vol + ws.Range("G" & i).Value
+        ws.Range("I" & count).Value = Range("A" & i).Value
+        ws.Range("J" & count).Value = yearly_change
+        ws.Range("K" & count).Value = Percent_change
+        ws.Range("L" & count).Value = total_vol
+          
+'Coloring the Percent change cells
+        
+        For i = 2 To count
+        
+            If ws.Range("J" & i) <= 0 Then
+                
+                ws.Range("J" & i).Interior.ColorIndex = 3
+            
+            Else
+                
+                ws.Range("J" & i).Interior.ColorIndex = 4
+            
+            End If
+            
+        Next i
+          
+          
+        
+'Finding max and min values
+
+        max_percent = ws.Range("K2").Value
+        min_percent = ws.Range("K2").Value
+        max_tot_vol = ws.Range("L2").Value
+        max_percent_ticker = ws.Range("I2").Value
+        min_percent_ticker = ws.Range("I2").Value
+        max_tot_vol_ticker = ws.Range("L2").Value
+            
+        For i = 3 To TotRows
+            
+            If max_percent < ws.Range("K" & i).Value Then
+            
+                max_percent = ws.Range("K" & i).Value
+                max_percent_ticker = ws.Range("I" & i).Value
+            
+            ElseIf min_percent >= ws.Range("K" & i).Value Then
+            
+                min_percent = ws.Range("K" & i).Value
+                min_percent_ticker = ws.Range("I" & i).Value
+                
+            End If
+            
+            If max_tot_vol < ws.Range("L" & i).Value Then
+            
+                max_tot_vol = ws.Range("L" & i).Value
+                max_tot_vol_ticker = ws.Range("I" & i).Value
+                
+            End If
+            
+        Next i
+        
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("P2").Value = max_percent_ticker
+        ws.Range("Q2").Value = max_percent
+        
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("P3").Value = min_percent_ticker
+        ws.Range("Q3").Value = min_percent
+        
+        ws.Range("O4").Value = "Greatest Total Volume"
+        ws.Range("P4").Value = max_tot_vol_ticker
+        ws.Range("Q4").Value = max_tot_vol
+        
+'Changing the format of cells
+        
+        ws.Range("K:K").NumberFormat = "0.00%"
+        ws.Range("Q2:Q3").NumberFormat = "0.00%"
+        ws.Cells.EntireColumn.AutoFit
+        ws.Cells.EntireRow.AutoFit
+        
+    Next ws
+
+End Sub
+
+
+
